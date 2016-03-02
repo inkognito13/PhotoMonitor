@@ -178,8 +178,17 @@ public class WatchDir {
             // reset key and remove from set if directory no longer accessible
             boolean valid = key.reset();
             if (!valid) {
-                keys.remove(key);
 
+                keys.remove(key);
+                
+                if (dir.toFile().exists()){
+                    try {
+                        registerAll(dir);    
+                    }catch (IOException x){
+                        
+                    }
+                }
+                
                 // all directories are inaccessible
                 if (keys.isEmpty()) {
                     break;
