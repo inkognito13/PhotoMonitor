@@ -8,7 +8,6 @@ import java.util.Map;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.*;
-import static su.tarasov.watchdir.Configuration.*;
 
 /**
  * Example to watch a directory (or tree) for changes to files.
@@ -58,14 +57,6 @@ public class WatchDir {
         }
     }
 
-    private void handleEntryCreate(Path file) {
-        if (isFileRaw(file)) {
-            System.out.format("File %s is Raw Photo file. Converting", file);
-            Path convertedFile = convert(file);
-            System.out.printf("Thumb %s is created", convertedFile);
-        }
-    }
-
     private Path convert(Path rawPhotoFile) {
         String original = rawPhotoFile.toString();
         String thumb = original.replace(configuration.BASE_FOLDER, configuration.THUMB_FOLDER)
@@ -75,8 +66,12 @@ public class WatchDir {
         return Paths.get(thumb);
     }
 
-    private static void upload(Path file) {
-
+    private void handleEntryCreate(Path file) {
+        if (isFileRaw(file)) {
+            System.out.format("File %s is Raw Photo file. Converting", file);
+            Path thumb = convert(file);
+            System.out.printf("Thumb %s is created", thumb);
+        }
     }
 
     private boolean isFileRaw(Path file) {

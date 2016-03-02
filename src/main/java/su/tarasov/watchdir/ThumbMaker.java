@@ -29,8 +29,9 @@ public class ThumbMaker {
     private boolean callDcraw(String originalFileName, String thumbFileName) {
             boolean success = false;
             try {
-                Process process = Runtime.getRuntime().exec(dcrawPath+" -e -c " + originalFileName);
-                System.out.println("Executing command "+dcrawPath+" -e -c " + originalFileName);
+                String[] args = {dcrawPath,"-e", "-c",originalFileName};
+                Process process = new ProcessBuilder(args).start();
+                System.out.println("Executing command "+dcrawPath+" -e -c " + originalFileName+"'");
 
                 InputStream processOutput = new BufferedInputStream(process.getInputStream());
                 OutputStream fileOut = new FileOutputStream(new File(thumbFileName));

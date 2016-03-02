@@ -17,9 +17,9 @@ public class ShellExecutor {
             BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             String line = null;
-//            while ((line = stdout.readLine()) != null){
-//                System.out.println(line);
-//            }
+            while ((line = stdout.readLine()) != null){
+                System.out.println(line);
+            }
 
             while ((line = stderr.readLine()) != null){
                 System.out.println(line);
