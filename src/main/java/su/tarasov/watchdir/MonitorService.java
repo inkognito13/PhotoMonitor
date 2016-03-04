@@ -13,23 +13,22 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * Example to watch a directory (or tree) for changes to files.
  */
 
-public class WatchDir {
+public class MonitorService {
 
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private Configuration configuration;
     private boolean trace = false;
-    private ThumbMaker thumbMaker;
+    private SystemEventHandler systemEventHandler;
 
     /**
      * Creates a WatchService and registers the given directory
      */
-    WatchDir(Configuration conf) throws IOException {
+    MonitorService(Configuration conf) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey, Path>();
         this.configuration = conf;
-        thumbMaker = new ThumbMaker(configuration.DCRAW_COMMAND);
-
+        this.systemEventHandler = new SystemEventHandler(conf);
         Path base = Paths.get(configuration.BASE_FOLDER);
 
         if (configuration.recursive) {
@@ -47,47 +46,6 @@ public class WatchDir {
     @SuppressWarnings("unchecked")
     static <T> WatchEvent<T> cast(WatchEvent<?> event) {
         return (WatchEvent<T>) event;
-    }
-
-    private void handleSystemChangeEvent(Path file, WatchEvent.Kind kind) {
-        if (kind.equals(ENTRY_CREATE)) {
-            handleEntryCreate(file);
-        } else if (kind.equals(ENTRY_DELETE)) {
-
-        }
-    }
-
-    private Path convert(Path rawPhotoFile) {
-        String original = rawPhotoFile.toString();
-        String thumb = original.replace(configuration.BASE_FOLDER, configuration.THUMB_FOLDER)
-                .replace(configuration.RAW_EXTENSION, configuration.THUMB_EXTENSION)
-                .replace(configuration.RAW_EXTENSION.toLowerCase(), configuration.THUMB_EXTENSION);
-        thumbMaker.createThumb(original, thumb);
-        return Paths.get(thumb);
-    }
-
-    private void handleEntryCreate(Path file) {
-        if (isFileRaw(file)) {
-            System.out.format("File %s is Raw Photo file. Converting", file);
-            Path thumb = convert(file);
-            System.out.printf("Thumb %s is created", thumb);
-        }
-    }
-
-    private boolean isFileRaw(Path file) {
-        return (getFileExtension(file.toString()).equalsIgnoreCase(configuration.RAW_EXTENSION));
-    }
-
-    private static String getFileExtension(String fileName) {
-        String extension = "";
-
-        int i = fileName.lastIndexOf('.');
-        int p = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
-
-        if (i > p) {
-            extension = fileName.substring(i + 1);
-        }
-        return extension;
     }
 
     /**
@@ -157,7 +115,7 @@ public class WatchDir {
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
-                handleSystemChangeEvent(child, kind);
+                systemEventHandler.handleSystemChangeEvent(child, kind);
 
                 // print out event
                 System.out.format("%s: %s\n", event.kind().name(), child);

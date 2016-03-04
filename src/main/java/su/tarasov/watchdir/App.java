@@ -3,8 +3,6 @@ package su.tarasov.watchdir;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * @author Dmitry Tarasov
@@ -27,7 +25,7 @@ public class App {
             configuration.THUMB_FOLDER = cmd.getOptionValue("t");
             configuration.recursive = cmd.hasOption("r");
             System.out.println("Starting with conf "+configuration);
-            new WatchDir(configuration).processEvents();
+            new MonitorService(configuration).processEvents();
 
         } catch (ParseException e) {
             System.out.println("Parsing arguments failed " + e.getMessage());
