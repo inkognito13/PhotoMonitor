@@ -48,16 +48,16 @@ public class ThumbMaker {
                 }
 
                 BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                StringBuilder builder = new StringBuilder();
-                String line = null;
-
-                while ((line = stderr.readLine()) != null){
-                    builder.append(line);
-                }
-
-                if (builder.length() > 0) {
-                    logger.error("Error executing dcraw command {}", builder.toString());
-                }
+                    StringBuilder builder = new StringBuilder();
+                    String line = null;
+    
+                    while ((line = stderr.readLine()) != null){
+                        builder.append(line);
+                    }
+    
+                    if (builder.length() > 0) {
+                        logger.error("Error executing dcraw command {}", builder.toString());
+                    }
 
                 if (process.waitFor() == 0) {
                     logger.debug("dcraw command Success!");
