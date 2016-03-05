@@ -41,22 +41,49 @@ public class SystemEventHandler {
 
     private void entryCreate(Path file) {
         if (isFileRaw(file)) {
-            logger.debug("File {} is Raw Photo file. Converting", file);
-            Path thumb = convert(file);
-            logger.debug("Thumb {} is created", thumb);
+            logger.debug("File {} is Raw Photo file. Converting and uploading", file);
+            convertAndUpload(file.toString());
         } else if (Files.isDirectory(file, NOFOLLOW_LINKS)) {
             logger.debug("File {} is directory. Creating new dir on remote drive", file);
             createRemoteDirectories(file.toString());
         }
     }
-    
-    private Path convert(Path rawPhotoFile) {
-        String original = rawPhotoFile.toString();
-        String thumb = original.replace(configuration.BASE_FOLDER, configuration.THUMB_FOLDER)
+
+    private void convertAndUpload(String rawFileName) {
+        String thumbFileName = convert(rawFileName);
+        if (thumbFileName != null) {
+            logger.debug("Thumb {} is created", thumbFileName);
+            String thumbRemoteDir = getFolder(rawFileName).replace(configuration.BASE_FOLDER, configuration.PHOTOS_REMOTE_FOLDER);
+            logger.debug("Uploading thumb {} to remote drive folder {}", thumbFileName, thumbRemoteDir);
+            boolean thumbUploaded = remoteDriveManager.uploadFile(thumbFileName, thumbRemoteDir);
+            if (thumbUploaded) {
+                logger.debug("Thumb {} successfully uploaded to remote drive folder {}", thumbFileName, thumbRemoteDir);
+            } else {
+                logger.error("Thumb {} NOT uploaded to remote drive folder {}", thumbFileName, thumbRemoteDir);
+            }
+            String rawRemoteDir = getFolder(rawFileName).replace(configuration.BASE_FOLDER, configuration.RAW_REMOTE_FOLDER);
+            logger.debug("Uploading raw {} to remote drive folder {}", rawFileName, rawRemoteDir);
+            boolean rawUploaded = remoteDriveManager.uploadFile(rawFileName, rawRemoteDir);
+            if (rawUploaded) {
+                logger.debug("Raw {} successfully uploaded to remote drive folder {}", rawFileName, rawRemoteDir);
+            } else {
+                logger.error("Raw {} NOT uploaded to remote drive folder {}", rawFileName, rawRemoteDir);
+            }
+        } else {
+            logger.error("Thumb for file {} is not created ", rawFileName);
+        }
+    }
+
+    private String convert(String rawFileName) {
+        String thumbFileName = rawFileName.replace(configuration.BASE_FOLDER, configuration.THUMB_FOLDER)
                 .replace(configuration.RAW_EXTENSION, configuration.THUMB_EXTENSION)
                 .replace(configuration.RAW_EXTENSION.toLowerCase(), configuration.THUMB_EXTENSION);
-        thumbMaker.createThumb(original, thumb);
-        return Paths.get(thumb);
+        boolean thumbCreated = thumbMaker.createThumb(rawFileName, thumbFileName);
+        if (thumbCreated) {
+            return thumbFileName;
+        } else {
+            return null;
+        }
     }
 
     private void createRemoteDirectories(String localDir) {
@@ -92,5 +119,9 @@ public class SystemEventHandler {
             extension = fileName.substring(i + 1);
         }
         return extension;
+    }
+
+    private String getFolder(String fileName) {
+        return Paths.get(fileName).getParent().toString();
     }
 }

@@ -36,7 +36,7 @@ public class ShellExecutor {
             }
 
             if (builder.length() > 0) {
-                logger.error("Error executing dcraw command {}", builder.toString());
+                logger.error("Error executing command {}", builder.toString());
             }
 
             if (process.waitFor() == 0) {

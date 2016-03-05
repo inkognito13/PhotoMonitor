@@ -123,7 +123,7 @@ public class MonitorService {
                 systemEventHandler.handleSystemChangeEvent(child, kind);
 
                 // print out event
-                System.out.format("%s: %s\n", event.kind().name(), child);
+                logger.debug("{}: {}", event.kind().name(), child);
 
                 // if directory is created, and watching recursively, then
                 // register it and its sub-directories

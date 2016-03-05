@@ -18,4 +18,9 @@ public class RemoteDriveManager {
         String command = acdCliPath + " mkdir  --parents " + dirPath;
         return shellExecutor.executeCommand(command);
     }
+    
+    public boolean uploadFile(String localFile,String remoteDir){
+        String command = acdCliPath + " upload "+localFile+" "+remoteDir;
+        return shellExecutor.executeCommand(command);
+    }
 }
