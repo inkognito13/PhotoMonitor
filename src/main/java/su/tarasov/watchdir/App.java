@@ -1,6 +1,8 @@
 package su.tarasov.watchdir;
 
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -10,6 +12,9 @@ import java.io.IOException;
  *         Time: 14:01
  */
 public class App {
+
+    private static Logger logger = LoggerFactory.getLogger(App.class);
+
     public static void main(String[] args) throws IOException {
 
         Options options = new Options();
@@ -24,11 +29,11 @@ public class App {
             configuration.BASE_FOLDER = cmd.getOptionValue("b");
             configuration.THUMB_FOLDER = cmd.getOptionValue("t");
             configuration.recursive = cmd.hasOption("r");
-            System.out.println("Starting with conf "+configuration);
+            logger.debug("Starting with conf {}", configuration);
             new MonitorService(configuration).processEvents();
 
         } catch (ParseException e) {
-            System.out.println("Parsing arguments failed " + e.getMessage());
+            logger.error("Parsing arguments failed ", e);
         }
     }
 

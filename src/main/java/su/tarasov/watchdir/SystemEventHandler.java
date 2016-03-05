@@ -1,5 +1,8 @@
 package su.tarasov.watchdir;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
@@ -17,6 +20,8 @@ public class SystemEventHandler {
     private ThumbMaker thumbMaker;
     private Configuration configuration;
 
+    private Logger logger = LoggerFactory.getLogger(SystemEventHandler.class);
+    
     public SystemEventHandler(Configuration configuration) {
         this.configuration = configuration;
         this.thumbMaker = new ThumbMaker(configuration.DCRAW_COMMAND);
@@ -32,9 +37,9 @@ public class SystemEventHandler {
 
     private void entryCreate(Path file) {
         if (isFileRaw(file)) {
-            System.out.format("File %s is Raw Photo file. Converting", file);
+            logger.debug("File {} is Raw Photo file. Converting", file);
             Path thumb = convert(file);
-            System.out.printf("Thumb %s is created", thumb);
+            logger.debug("Thumb {} is created", thumb);
         }
     }
 

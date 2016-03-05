@@ -1,5 +1,8 @@
 package su.tarasov.watchdir;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 
 /**
@@ -11,6 +14,8 @@ public class ThumbMaker {
 
     private String dcrawPath;
 
+    private Logger logger = LoggerFactory.getLogger(ThumbMaker.class);
+
     public ThumbMaker(String dcrawPath) {
         this.dcrawPath = dcrawPath;
     }
@@ -20,8 +25,8 @@ public class ThumbMaker {
             checkFolderAndCreate(thumbFileName);
             return callDcraw(originalFileName, thumbFileName);
         }catch (Exception e){
-            System.out.format("Error creating thumb with orig %s and thumb %s", originalFileName, thumbFileName);
-            e.printStackTrace();
+            logger.error("Error creating thumb with orig {} and thumb {}", originalFileName, thumbFileName);
+            logger.error("Error ", e);
             return false;
         }
     }
@@ -31,7 +36,7 @@ public class ThumbMaker {
             try {
                 String[] args = {dcrawPath,"-e", "-c",originalFileName};
                 Process process = new ProcessBuilder(args).start();
-                System.out.println("Executing command "+dcrawPath+" -e -c " + originalFileName+"'");
+                logger.debug("Executing command " + dcrawPath + " -e -c " + originalFileName + "'");
 
                 InputStream processOutput = new BufferedInputStream(process.getInputStream());
                 OutputStream fileOut = new FileOutputStream(new File(thumbFileName));
@@ -43,18 +48,23 @@ public class ThumbMaker {
                 }
 
                 BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                StringBuilder builder = new StringBuilder();
                 String line = null;
+
                 while ((line = stderr.readLine()) != null){
-                    System.out.println(line);
+                    builder.append(line);
+                }
+
+                if (builder.length() > 0) {
+                    logger.error("Error executing dcraw command {}", builder.toString());
                 }
 
                 if (process.waitFor() == 0) {
-                    System.out.println("Success!");
+                    logger.debug("dcraw command Success!");
                     success = true;
                 }
             }catch (Exception e){
-                System.out.format("Error executing command '%s'",dcrawPath+" -e -c " + originalFileName);
-                e.printStackTrace();
+                logger.error("Error executing command '%s'", dcrawPath + " -e -c " + originalFileName, e);
             }
 
             return success;

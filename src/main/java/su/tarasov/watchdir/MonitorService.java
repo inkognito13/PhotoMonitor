@@ -1,5 +1,8 @@
 package su.tarasov.watchdir;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -21,6 +24,7 @@ public class MonitorService {
     private boolean trace = false;
     private SystemEventHandler systemEventHandler;
 
+    private Logger logger = LoggerFactory.getLogger(MonitorService.class);
     /**
      * Creates a WatchService and registers the given directory
      */
@@ -32,9 +36,9 @@ public class MonitorService {
         Path base = Paths.get(configuration.BASE_FOLDER);
 
         if (configuration.recursive) {
-            System.out.format("Scanning %s ...\n", configuration.BASE_FOLDER);
+            logger.debug("Scanning {} ", configuration.BASE_FOLDER);
             registerAll(base);
-            System.out.println("Done.");
+            logger.debug("Done scanning {}", configuration.BASE_FOLDER);
         } else {
             register(base);
         }
@@ -53,13 +57,14 @@ public class MonitorService {
      */
     private void register(Path dir) throws IOException {
         WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+        logger.debug("register: {}", dir);
         if (trace) {
             Path prev = keys.get(key);
             if (prev == null) {
-                System.out.format("register: %s\n", dir);
+                logger.debug("register {} as new folder", dir);
             } else {
                 if (!dir.equals(prev)) {
-                    System.out.format("update: %s -> %s\n", prev, dir);
+                    logger.debug("update: {} -> {}", prev, dir);
                 }
             }
         }
@@ -98,7 +103,7 @@ public class MonitorService {
 
             Path dir = keys.get(key);
             if (dir == null) {
-                System.err.println("WatchKey not recognized!!");
+                logger.error("WatchKey not recognized!!");
                 continue;
             }
 
