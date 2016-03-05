@@ -15,12 +15,12 @@ public class RemoteDriveManager {
     }
 
     public boolean createDir(String dirPath) {
-        String command = acdCliPath + " mkdir  --parents " + dirPath;
+        String[] command = {acdCliPath, "mkdir", "--parents", dirPath};
         return shellExecutor.executeCommand(command);
     }
     
     public boolean uploadFile(String localFile,String remoteDir){
-        String command = acdCliPath + " upload "+localFile+" "+remoteDir;
+        String[] command = {acdCliPath, "upload", localFile, remoteDir};
         return shellExecutor.executeCommand(command);
     }
 }

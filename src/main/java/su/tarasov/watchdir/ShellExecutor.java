@@ -15,7 +15,7 @@ public class ShellExecutor {
 
     private Logger logger = LoggerFactory.getLogger(ShellExecutor.class);
 
-    public boolean executeCommand(String command) {
+    public boolean executeCommand(String[] command) {
         boolean success = false;
         try {
             Process process = Runtime.getRuntime().exec(command);
