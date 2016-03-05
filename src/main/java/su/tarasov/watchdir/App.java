@@ -21,6 +21,9 @@ public class App {
         options.addOption("b", "base-folder", true, "Base folder to watch");
         options.addOption("t", "thumb-folder", true, "Folder for thumbs");
         options.addOption("r", "recursive", false, "Watch recursive");
+        options.addOption("d","dcraw-command",true,"Dcraw command");
+        options.addOption("a","acd-command",true,"ACD command");
+        
 
         CommandLineParser parser = new DefaultParser();
         try {
@@ -28,6 +31,8 @@ public class App {
             Configuration configuration = new Configuration();
             configuration.BASE_FOLDER = cmd.getOptionValue("b");
             configuration.THUMB_FOLDER = cmd.getOptionValue("t");
+            configuration.DCRAW_COMMAND = cmd.getOptionValue("d");
+            configuration.ACDCLI_COMMAND = cmd.getOptionValue("a");
             configuration.recursive = cmd.hasOption("r");
             logger.debug("Starting with conf {}", configuration);
             new MonitorService(configuration).processEvents();
