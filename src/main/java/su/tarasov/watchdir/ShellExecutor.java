@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 /**
  * @author Dmitry Tarasov
@@ -19,11 +20,11 @@ public class ShellExecutor {
         boolean success = false;
         try {
             Process process = Runtime.getRuntime().exec(command);
-            logger.debug("Executing command {}", command);
+            logger.debug("Executing command {}", Arrays.toString(command));
             BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             String line = null;
-            logger.debug("Command output {}", command);
+            logger.debug("Command output {}", Arrays.toString(command));
             while ((line = stdout.readLine()) != null){
                 logger.debug(line);
             }
@@ -44,7 +45,7 @@ public class ShellExecutor {
                 success = true;
             }
         }catch (Exception e){
-            logger.error("Error executing command " + command, e);
+            logger.error("Error executing command " + Arrays.toString(command), e);
         }
 
         return success;
