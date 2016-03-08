@@ -46,6 +46,19 @@ public class SystemEventHandler {
         } else if (Files.isDirectory(file, NOFOLLOW_LINKS)) {
             logger.debug("File {} is directory. Creating new dir on remote drive", file);
             createRemoteDirectories(file.toString());
+        } else {
+            logger.debug("File {} is regular file. Uploading remote drive", file);
+            uploadRegularFile(file.toString());
+        }
+    }
+
+    private void uploadRegularFile(String localFileName) {
+        String remoteDir = getFolder(localFileName).replace(configuration.BASE_FOLDER, configuration.PHOTOS_REMOTE_FOLDER);
+        boolean fileUploaded = remoteDriveManager.uploadFile(localFileName, remoteDir);
+        if (fileUploaded) {
+            logger.debug("Regular file {} successfully uploaded to remote drive folder {}", localFileName, remoteDir);
+        } else {
+            logger.error("Regular file {} NOT uploaded to remote drive folder {}", localFileName, remoteDir);
         }
     }
 
