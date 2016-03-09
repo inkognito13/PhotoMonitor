@@ -47,7 +47,7 @@ public class SystemEventHandler {
             logger.debug("File {} is directory. Creating new dir on remote drive", file);
             createRemoteDirectories(file.toString());
         } else {
-            logger.debug("File {} is regular file. Uploading remote drive", file);
+            logger.debug("File {} is regular file. Uploading to remote drive", file);
             uploadRegularFile(file.toString());
         }
     }

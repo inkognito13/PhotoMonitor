@@ -64,7 +64,7 @@ public class ThumbMaker {
                     success = true;
                 }
             }catch (Exception e){
-                logger.error("Error executing command '%s'", dcrawPath + " -e -c " + originalFileName, e);
+                logger.error("Error thumb creation", dcrawPath + " -e -c " + originalFileName, e);
             }
 
             return success;
