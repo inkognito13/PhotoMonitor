@@ -31,8 +31,8 @@ public class App {
         try {
             CommandLine cmd = parser.parse(options, args);
             Configuration configuration = new Configuration();
-            configuration.BASE_FOLDER = cmd.getOptionValue("b");
-            configuration.THUMB_FOLDER = cmd.getOptionValue("t");
+            configuration.BASE_FOLDER = removeFolderPathEndSlash(cmd.getOptionValue("b"));
+            configuration.THUMB_FOLDER = removeFolderPathEndSlash(cmd.getOptionValue("t"));
             configuration.DCRAW_COMMAND = cmd.getOptionValue("d");
             configuration.ACDCLI_COMMAND = cmd.getOptionValue("a");
             configuration.recursive = cmd.hasOption("r");
@@ -41,6 +41,7 @@ public class App {
             if (batchMode) {
                 String batchFolder = cmd.getOptionValue("bf");
                 if (batchFolder != null) {
+                    batchFolder = removeFolderPathEndSlash(batchFolder);
                     logger.debug("Running in FOLDER BATCH mode for folder {}", batchFolder);
                     new BatchManager(configuration).runFolderBatch(batchFolder);
                 } else {
@@ -56,6 +57,13 @@ public class App {
         } catch (ParseException e) {
             logger.error("Parsing arguments failed ", e);
         }
+    }
+
+    private static String removeFolderPathEndSlash(String folderPath) {
+        if (folderPath.endsWith("/")) {
+            return folderPath.substring(0,folderPath.length()-1);
+        }
+        return folderPath;
     }
 
 }
