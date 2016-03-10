@@ -28,7 +28,15 @@ public class BatchManager {
     }
 
     public void runCompleteBatch() {
-        List<Path> files = getFolderContent(new File(configuration.BASE_FOLDER));
+        runBatch(configuration.BASE_FOLDER);
+    }
+
+    public void runFolderBatch(String folderPath) {
+        runBatch(folderPath);
+    }
+
+    private void runBatch(String folderPath) {
+        List<Path> files = getFolderContent(new File(folderPath));
 
         logger.debug("Found {} files to proceed", files.size());
 

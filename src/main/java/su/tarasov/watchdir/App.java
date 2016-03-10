@@ -24,6 +24,7 @@ public class App {
         options.addOption("d","dcraw-command",true,"Dcraw command");
         options.addOption("a","acd-command",true,"ACD command");
         options.addOption("bm", "batch-mode", false, "Batch mode");
+        options.addOption("bf", "batch-folder", true, "Batch folder");
         
 
         CommandLineParser parser = new DefaultParser();
@@ -38,8 +39,15 @@ public class App {
             boolean batchMode = cmd.hasOption("bm");
             logger.debug("Starting with conf {}", configuration);
             if (batchMode) {
-                logger.debug("Running in BATCH mode");
-                new BatchManager(configuration).runCompleteBatch();
+                String batchFolder = cmd.getOptionValue("bf");
+                if (batchFolder != null) {
+                    logger.debug("Running in FOLDER BATCH mode for folder {}", batchFolder);
+                    new BatchManager(configuration).runFolderBatch(batchFolder);
+                } else {
+                    logger.debug("Running in COMPLETE BATCH mode");
+                    new BatchManager(configuration).runCompleteBatch();
+                }
+
             } else {
                 logger.debug("Running in MONITOR mode");
                 new MonitorService(configuration).processEvents();
