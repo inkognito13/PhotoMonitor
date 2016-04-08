@@ -13,7 +13,7 @@ public class Configuration {
     public String RAW_EXTENSION = "NEF";
     public String THUMB_EXTENSION = "jpg";
     public String PHOTOS_REMOTE_FOLDER = "/Pictures/NAS/photos";
-    public String RAW_REMOTE_FOLDER = "/Pictures/NAS/raw";
+    public String RAW_REMOTE_FOLDER = "/Pictures/NAS/backup";
     public boolean recursive = false;
 
     public Configuration() {

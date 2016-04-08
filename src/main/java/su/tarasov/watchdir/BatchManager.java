@@ -57,6 +57,7 @@ public class BatchManager {
         logger.debug("Uploading non-raw files");
         fileProcessor.uploadToPhotoFolder(folderPath, configuration.RAW_EXTENSION);
         logger.debug("Non-raw files uploaded");
+        fileProcessor.uploadToRawFolder(folderPath);
     }
 
     private FolderScanResult getFolderContent(File folder) {
