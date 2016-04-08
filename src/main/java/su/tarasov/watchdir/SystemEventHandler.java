@@ -48,6 +48,7 @@ public class SystemEventHandler {
         } else {
             logger.debug("File {} is regular file. Uploading to remote drive", file);
             fileProcessor.uploadToPhotoFolder(file.toString());
+            fileProcessor.uploadToRawFolder(file.toString());
         }
     }
 }
