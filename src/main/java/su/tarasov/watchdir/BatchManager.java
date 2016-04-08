@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +17,13 @@ import java.util.List;
 public class BatchManager {
 
     private Configuration configuration;
-    private SystemEventHandler systemEventHandler;
+    private FileProcessor fileProcessor;
 
     private Logger logger = LoggerFactory.getLogger(BatchManager.class);
 
     public BatchManager(Configuration configuration) {
         this.configuration = configuration;
-        this.systemEventHandler = new SystemEventHandler(configuration);
+        this.fileProcessor = new FileProcessor(configuration);
     }
 
     public void runCompleteBatch() {
@@ -36,30 +35,59 @@ public class BatchManager {
     }
 
     private void runBatch(String folderPath) {
-        List<Path> files = getFolderContent(new File(folderPath));
+        FolderScanResult files = getFolderContent(new File(folderPath));
 
-        logger.debug("Found {} files to proceed", files.size());
+        logger.debug("Found {} files to proceed", files.getOverallFiles());
+        logger.debug("Creating thumbs for {} raw files", files.raws.size());
+        logger.debug("Creating thumbs");
 
-        int count = 1;
+        int rawCount = files.raws.size();
 
-        for (Path path : files) {
-            logger.debug("Processing {} file of {}", count, files.size());
-            systemEventHandler.handleSystemChangeEvent(path, StandardWatchEventKinds.ENTRY_CREATE);
-            count++;
+        for (int i = 0; i < rawCount; i++) {
+            logger.debug("Processing {} file of {}", i + 1, rawCount);
+            fileProcessor.createThumb(files.raws.get(i).toString());
         }
+
+        logger.debug("Thumbs created. Uploading");
+
+        String rootThumbFolder = folderPath.replace(configuration.BASE_FOLDER, configuration.THUMB_FOLDER);
+        fileProcessor.uploadToPhotoFolder(rootThumbFolder);
+
+        logger.debug("Thumbs uploaded");
+        logger.debug("Uploading non-raw files");
+        fileProcessor.uploadToPhotoFolder(folderPath, configuration.RAW_EXTENSION);
+        logger.debug("Non-raw files uploaded");
     }
 
-    private List<Path> getFolderContent(File folder) {
-        List<Path> fileList = new ArrayList<Path>();
+    private FolderScanResult getFolderContent(File folder) {
+        FolderScanResult fileList = new FolderScanResult();
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
-                fileList.add(Paths.get(file.toURI()));
                 fileList.addAll(getFolderContent(file));
             } else {
-                fileList.add(Paths.get(file.toURI()));
+                Path filePath = Paths.get(file.toURI());
+                if (FileExtensionUtil.isFileRaw(filePath, configuration.RAW_EXTENSION)) {
+                    fileList.raws.add(filePath);
+                } else {
+                    fileList.regular.add(filePath);
+                }
             }
         }
         return fileList;
+    }
+
+    private class FolderScanResult {
+        List<Path> raws = new ArrayList<Path>();
+        List<Path> regular = new ArrayList<Path>();
+
+        int getOverallFiles() {
+            return raws.size() + regular.size();
+        }
+
+        void addAll(FolderScanResult input) {
+            raws.addAll(input.raws);
+            regular.addAll(input.regular);
+        }
     }
 
 
