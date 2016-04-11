@@ -22,17 +22,17 @@ public class MonitorService {
     private final Map<WatchKey, Path> keys;
     private Configuration configuration;
     private boolean trace = false;
-    private SystemEventHandler systemEventHandler;
+    private EventPool eventPool;
 
     private Logger logger = LoggerFactory.getLogger(MonitorService.class);
     /**
      * Creates a WatchService and registers the given directory
      */
-    MonitorService(Configuration conf) throws IOException {
+    MonitorService(Configuration conf, EventPool eventPool) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey, Path>();
         this.configuration = conf;
-        this.systemEventHandler = new SystemEventHandler(conf);
+        this.eventPool = eventPool;
         Path base = Paths.get(configuration.BASE_FOLDER);
 
         if (configuration.recursive) {
@@ -120,8 +120,6 @@ public class MonitorService {
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
-                systemEventHandler.handleSystemChangeEvent(child, kind);
-
                 // print out event
                 logger.debug("{}: {}", event.kind().name(), child);
 
@@ -136,6 +134,8 @@ public class MonitorService {
                         // ignore to keep sample readbale
                     }
                 }
+
+                eventPool.put(new Event(child, kind));
             }
 
             // reset key and remove from set if directory no longer accessible

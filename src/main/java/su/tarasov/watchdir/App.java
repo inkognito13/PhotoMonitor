@@ -51,7 +51,10 @@ public class App {
 
             } else {
                 logger.debug("Running in MONITOR mode");
-                new MonitorService(configuration).processEvents();
+                EventPool eventPool = new EventPool();
+                SystemEventHandler systemEventHandler = new SystemEventHandler(configuration, eventPool);
+                new Thread(systemEventHandler).start();
+                new MonitorService(configuration, eventPool).processEvents();
             }
 
         } catch (ParseException e) {

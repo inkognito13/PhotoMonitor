@@ -16,16 +16,25 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
  *         Date: 03/05/2016
  *         Time: 00:16
  */
-public class SystemEventHandler {
+public class SystemEventHandler implements Runnable {
 
     private FileProcessor fileProcessor;
     private Configuration configuration;
+    private EventPool eventPool;
 
     private Logger logger = LoggerFactory.getLogger(SystemEventHandler.class);
-    
-    public SystemEventHandler(Configuration configuration) {
+
+    public SystemEventHandler(Configuration configuration, EventPool eventPool) {
         this.configuration = configuration;
         this.fileProcessor = new FileProcessor(configuration);
+        this.eventPool = eventPool;
+    }
+
+    public void run() {
+        while (true) {
+            Event event = eventPool.get();
+            handleSystemChangeEvent(event.getPath(), event.getKind());
+        }
     }
 
     public void handleSystemChangeEvent(Path file, WatchEvent.Kind kind) {
